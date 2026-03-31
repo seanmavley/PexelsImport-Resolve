@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pexels Browser — DaVinci Resolve</title>
+    <meta name="description" content="Browse, preview, and download Pexels stock video footage directly in DaVinci Resolve">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- ===== ONBOARDING SCREEN ===== -->
+    <div id="onboarding-screen" class="hidden">
+        <div class="onboarding">
+            <div class="onboarding-card">
+                <div class="onboarding-icon">🎬</div>
+                <h1 class="onboarding-title">Pexels Browser</h1>
+                <p class="onboarding-desc">
+                    Browse thousands of free HD &amp; 4K stock videos from Pexels, 
+                    preview them, and download directly into your project.
+                </p>
+                <input type="text" id="onboarding-api-key" class="onboarding-input"
+                       placeholder="Enter your Pexels API key">
+                <button id="onboarding-btn" class="onboarding-btn">Connect to Pexels</button>
+                <p id="onboarding-error" class="onboarding-error"></p>
+                <a href="https://www.pexels.com/api/" class="onboarding-link" target="_blank" rel="noopener">
+                    Get a free API key →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN SCREEN ===== -->
+    <div id="main-screen" class="hidden">
+
+        <!-- --- HEADER --- -->
+        <header class="app-header">
+            <div class="header-top">
+                <div class="logo">
+                    <div class="logo-icon">▶</div>
+                    <span class="logo-text">Pexels Browser</span>
+                </div>
+
+                <div class="search-container">
+                    <div class="search-bar">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="search-input" class="search-input"
+                               placeholder="Search free stock videos..." autocomplete="off">
+                        <button id="search-clear" class="search-clear" aria-label="Clear search">✕</button>
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <button id="download-btn" class="icon-btn" style="position:relative" aria-label="Downloads" title="Downloads">
+                        ⬇
+                        <span id="download-badge" class="download-badge"></span>
+                    </button>
+                    <button id="settings-btn" class="icon-btn" aria-label="Settings" title="Settings">⚙</button>
+                </div>
+            </div>
+
+            <!-- --- FILTER BAR --- -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <span class="filter-label">Orientation</span>
+                    <div class="filter-pills">
+                        <button class="filter-pill active" data-filter="orientation" data-value="all">All</button>
+                        <button class="filter-pill" data-filter="orientation" data-value="landscape">Landscape</button>
+                        <button class="filter-pill" data-filter="orientation" data-value="portrait">Portrait</button>
+                        <button class="filter-pill" data-filter="orientation" data-value="square">Square</button>
+                    </div>
+                </div>
+
+                <div class="filter-separator"></div>
+
+                <div class="filter-group">
+                    <span class="filter-label">Resolution</span>
+                    <div class="filter-pills">
+                        <button class="filter-pill active" data-filter="resolution" data-value="all">All</button>
+                        <button class="filter-pill" data-filter="resolution" data-value="large">4K</button>
+                        <button class="filter-pill" data-filter="resolution" data-value="medium">Full HD</button>
+                        <button class="filter-pill" data-filter="resolution" data-value="small">HD</button>
+                    </div>
+                </div>
+
+                <div class="filter-separator"></div>
+
+                <div class="filter-group duration-filter">
+                    <span class="filter-label">Duration</span>
+                    <div class="duration-range">
+                        <input type="number" id="duration-min" class="duration-input" placeholder="Min" min="0">
+                        <span class="duration-unit">–</span>
+                        <input type="number" id="duration-max" class="duration-input" placeholder="Max" min="0">
+                        <span class="duration-unit">sec</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- --- RESULTS BAR --- -->
+        <div id="results-bar" class="results-bar hidden">
+            <span id="results-count" class="results-count"></span>
+        </div>
+
+        <!-- --- VIDEO GRID --- -->
+        <div class="video-grid-container">
+            <div id="video-grid" class="video-grid"></div>
+        </div>
+
+        <!-- --- LOAD MORE --- -->
+        <div id="load-more-container" class="load-more-container hidden">
+            <button id="load-more-btn" class="load-more-btn">Load More</button>
+        </div>
+    </div>
+
+    <!-- ===== PREVIEW MODAL ===== -->
+    <div id="modal-backdrop" class="modal-backdrop"></div>
+    <div id="preview-modal" class="modal">
+        <button id="modal-close" class="modal-close" aria-label="Close preview">✕</button>
+        <div class="modal-video-container">
+            <video id="modal-video" controls preload="metadata"></video>
+        </div>
+        <div class="modal-body">
+            <h2 id="modal-title" class="modal-title"></h2>
+            <p id="modal-author" class="modal-author"></p>
+            <div id="modal-meta" class="modal-meta"></div>
+            <div class="download-section">
+                <div class="download-section-title">Download Options</div>
+                <div id="modal-downloads" class="download-options"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SETTINGS PANEL ===== -->
+    <aside id="settings-panel" class="settings-panel">
+        <div class="settings-header">
+            <h3 class="settings-title">Settings</h3>
+            <button id="settings-close" class="settings-close" aria-label="Close settings">✕</button>
+        </div>
+        <div class="settings-body">
+            <div class="settings-section">
+                <label class="settings-label" for="settings-api-key">Pexels API Key</label>
+                <input type="text" id="settings-api-key" class="settings-input"
+                       placeholder="Enter your API key">
+                <p class="settings-hint">
+                    Get a free key at <a href="https://www.pexels.com/api/" target="_blank" rel="noopener" style="color:var(--text-accent)">pexels.com/api</a>
+                </p>
+            </div>
+            <div class="settings-section">
+                <label class="settings-label" for="settings-download-folder">Download Folder</label>
+                <div style="display:flex;gap:8px">
+                    <input type="text" id="settings-download-folder" class="settings-input"
+                           placeholder="/path/to/downloads" style="flex:1">
+                    <button id="browse-folder-btn" class="icon-btn" title="Browse" style="flex-shrink:0">📁</button>
+                </div>
+                <p class="settings-hint">
+                    Downloaded videos will be saved here. The auto-import bridge will 
+                    monitor this folder and import new files into the Media Pool.
+                </p>
+            </div>
+            <div class="settings-section">
+                <label class="settings-label">Auto-Import Bridge</label>
+                <p class="settings-hint" style="margin-top:0">
+                    To auto-import videos into DaVinci Resolve's Media Pool, run this in a terminal:
+                </p>
+                <code style="display:block;padding:10px;background:var(--bg-input);border-radius:var(--radius-sm);font-size:11px;color:var(--text-accent);margin-top:6px;word-break:break-all;">
+                    python3 bridge/import_to_resolve.py --watch /path/to/downloads
+                </code>
+            </div>
+            <button id="settings-save-btn" class="settings-save-btn">Save Settings</button>
+        </div>
+    </aside>
+
+    <!-- ===== DOWNLOAD PANEL ===== -->
+    <div id="download-panel" class="download-panel">
+        <div class="download-panel-header">
+            <span class="download-panel-title">Downloads</span>
+        </div>
+        <div id="download-panel-body" class="download-panel-body"></div>
+    </div>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="js/api.js"></script>
+    <script src="js/download.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+</html>
