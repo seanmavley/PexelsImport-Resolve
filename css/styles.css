@@ -1050,6 +1050,35 @@ body {
     transition: width 200ms linear;
 }
 
+.cancel-download-btn {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 6px;
+    margin-left: 4px;
+    line-height: 1;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+    opacity: 0.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cancel-download-btn:hover {
+    color: #ef4444;
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.download-queue-item.cancelled {
+    opacity: 0.6;
+    filter: grayscale(1);
+    pointer-events: none;
+}
+
 /* ==========================================================================
    LOADING SKELETONS
    ========================================================================== */

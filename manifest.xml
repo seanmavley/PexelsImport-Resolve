@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Plugin>
-    <Name>Pexels Browser</Name>
-    <URL>index.html</URL>
-</Plugin>
+<BlackmagicDesign>
+    <Plugin>
+        <Id>com.pexels.resolve.browser</Id>
+        <Name>Pexels Browser</Name>
+        <Version>1.0.0</Version>
+        <Description>Browse, preview, and download free Pexels stock videos directly in DaVinci Resolve</Description>
+        <FilePath>main.js</FilePath>
+    </Plugin>
+</BlackmagicDesign>

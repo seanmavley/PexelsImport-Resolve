@@ -352,19 +352,25 @@ const UI = (() => {
                 icon = '⬇';
             }
             else if (item.status === 'complete') { statusText = 'Complete'; icon = '✅'; }
+            else if (item.status === 'cancelled') { statusText = 'Cancelled'; icon = '🚫'; }
             else if (item.status === 'error') { statusText = `Error: ${item.error}`; icon = '❌'; }
 
+            const showCancel = item.status === 'queued' || item.status === 'downloading';
+
             return `
-                <div class="download-queue-item">
+                <div class="download-queue-item ${item.status}">
                     <div class="download-item-icon">${icon}</div>
                     <div class="download-item-info">
-                        <div class="download-item-name">${_escapeHtml(item.filename)}</div>
+                        <div class="download-item-name" title="${_escapeHtml(item.filename)}">${_escapeHtml(item.filename)}</div>
                         <div class="download-item-status">${statusText}</div>
                         ${item.status === 'downloading' ? `
                         <div class="download-progress-bar">
                             <div class="download-progress-fill" style="width: ${item.progress}%"></div>
                         </div>` : ''}
                     </div>
+                    ${showCancel ? `
+                    <button class="cancel-download-btn" data-id="${item.id}" title="Cancel Download">✕</button>
+                    ` : ''}
                 </div>
             `;
         }).join('');
@@ -427,21 +433,17 @@ const UI = (() => {
 
     // --- Folder Picker ---
     async function pickFolder() {
-        // Try Electron dialog
-        try {
-            if (typeof require !== 'undefined') {
-                const { dialog } = require('electron').remote || require('@electron/remote');
-                const result = await dialog.showOpenDialog({
-                    properties: ['openDirectory'],
-                    title: 'Choose Download Folder',
-                });
-                if (!result.canceled && result.filePaths.length > 0) {
-                    return result.filePaths[0];
-                }
+        if (typeof require !== 'undefined') {
+            try {
+                const { ipcRenderer } = require('electron');
+                const folder = await ipcRenderer.invoke('select-folder');
+                if (folder) return folder;
+                if (folder === null) return null; // User cancelled
+            } catch (e) {
+                console.error('Electron IPC folder picker failed:', e);
             }
-        } catch (e) {
-            // Not in Electron or remote not available
         }
+
         // Fallback: prompt
         const folder = prompt(
             'Enter the full path to your download folder:',

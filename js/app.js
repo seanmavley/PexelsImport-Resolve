@@ -125,6 +125,15 @@ const App = (() => {
             const panel = document.getElementById('download-panel');
             panel.classList.toggle('active');
         });
+
+        // Download panel actions (delegated)
+        document.getElementById('download-panel').addEventListener('click', (e) => {
+            const cancelBtn = e.target.closest('.cancel-download-btn');
+            if (cancelBtn) {
+                const id = cancelBtn.dataset.id;
+                DownloadManager.cancelDownload(id);
+            }
+        });
     }
 
     // --- Onboarding ---
